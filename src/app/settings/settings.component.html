@@ -1,0 +1,221 @@
+
+<div class="card-saved" *ngIf="newSettings">
+    <h4>Settings Updated</h4>
+</div>
+<div class="row m-4 px-3 pt-3 pb-5">
+    <h2>Settings</h2>
+    <hr class="line-break">
+    
+    <div class="col-sm ">
+        <h3>Ride</h3>
+        <div class="mb-3 settings col-12  mt-4 ">
+        
+            <label for="acceptRequestTime" class="form-label">Time for Driver to Accept Request (seconds)</label>
+            <select id="acceptRequestTime" class="form-select mx-3 p-1" [(ngModel)]="acceptRequestTime" name="acceptRequestTime"
+                (change)="onSelectWaitingTime($event)">
+                <option value="10">10 seconds</option>
+                <option value="20">20 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="45">45 seconds</option>
+                <option value="60">60 seconds</option>
+                <option value="90">90 seconds</option>
+                <option value="120">120 seconds</option>
+            </select>
+        </div>
+        
+        <div class="mb-3 settings col-12 ">
+            <label for="maxStops" class="form-label">Maximum Stops Between Locations</label>
+            <select id="maxStops" class="form-select mx-3 p-1" [(ngModel)]="maxStops" name="maxStops"
+                (change)="onSelectStop($event)">
+                <option value="1">1 stop</option>
+                <option value="2">2 stops</option>
+                <option value="3">3 stops</option>
+                <option value="4">4 stops</option>
+                <option value="5">5 stops</option>
+            </select>
+        </div>
+        <button class="btn btn-dark mr-3" [disabled]="DefaultSettings" (click)="setDefaultSettings()">Default Settings</button>
+        <button class="btn btn-dark" (click)="updateSettings()">Set Settings</button>
+    </div>
+    <hr class="vertical-break">
+<div class="col-sm">
+    
+    <div class="mb-3 settings col-12">
+        <h2 class="mb-3">Email Configuration Settings</h2>
+        
+        <div class=" email-container ">
+          
+            <form [formGroup]="emailConfigForm" (ngSubmit)="onSubmit()">
+
+                <!-- SMTP Server Settings -->
+                <div class="mb-4">
+                    <div class="">
+                        <h4>SMTP Server Settings</h4>
+                    </div>
+                    <div class="">
+                        <div class="form-group">
+                            <label for="smtpHost">SMTP Host</label>
+                            <input type="text" id="smtpHost" class="form-control col-10" formControlName="smtpHost"
+                                placeholder="e.g., smtp.ethereal.email" />
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpPort">SMTP Port</label>
+                            <input type="number" id="smtpPort" class="form-control col-10" formControlName="smtpPort"
+                                placeholder="e.g., 587" />
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" id="secureConnection" class="form-check-input"
+                                formControlName="secureConnection" />
+                            <label for="secureConnection" class="form-check-label">Use Secure Connection
+                                (SSL/TLS)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authentication Credentials -->
+                <div class="mb-4">
+                    <div class="">
+                        <h4>Authentication Credentials</h4>
+                    </div>
+                    <div class="">
+                        <div class="form-group">
+                            <label for="emailUser">Email Address (User)</label>
+                            <input type="email" id="emailUser" class="form-control col-10" formControlName="emailUser"
+                                placeholder="Your email address" />
+                        </div>
+                        <div class="form-group">
+                            <label for="emailPass">Password</label>
+                            <input type="password" id="emailPass" class="form-control col-10" formControlName="emailPass"
+                                placeholder="Your password or app-specific password" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sender Information -->
+                <div class="mb-4">
+                    <div class="">
+                        <h4>Sender Information</h4>
+                    </div>
+                    <div class="">
+                        <div class="form-group">
+                            <label for="fromName">From Name</label>
+                            <input type="text" id="fromName" class="form-control col-10" formControlName="fromName"
+                                placeholder="e.g., Eber Rides" />
+                        </div>
+                        <div class="form-group">
+                            <label for="fromEmail">From Email Address</label>
+                            <input type="email" id="fromEmail" class="form-control col-10" formControlName="fromEmail"
+                                placeholder="Your sender email address" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-outline-secondary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="twilio-settings-container bg-dark p-4">
+    <h2>Twilio Settings</h2>
+
+    <form [formGroup]="twilioSettingsForm" (ngSubmit)="saveTwilioSettings()">
+        <!-- API Keys and Credentials Section -->
+        <div class="settings-section">
+            <h3>API Keys and Credentials</h3>
+            <div class="form-group">
+                <label for="accountSid">Account SID</label>
+                <input type="text" id="accountSid" formControlName="accountSid" placeholder="Enter Account SID" />
+            </div>
+            <div class="form-group">
+                <label for="authToken">Auth Token</label>
+                <input type="password" id="authToken" formControlName="authToken" placeholder="Enter Auth Token" />
+            </div>
+        </div>
+
+        <!-- Phone Numbers Section -->
+        <div class="settings-section">
+            <h3>Phone Numbers</h3>
+            <div class="form-group">
+                <label for="twilioPhoneNumber">Twilio Phone Number</label>
+                <input type="text" id="twilioPhoneNumber" formControlName="twilioPhoneNumber"
+                    placeholder="Enter Twilio Phone Number" />
+            </div>
+            <div class="form-group">
+                <label for="whatsappNumber">WhatsApp Number</label>
+                <input type="text" id="whatsappNumber" formControlName="whatsappNumber"
+                    placeholder="Enter WhatsApp Number" />
+            </div>
+        </div>
+
+        <!-- Message Settings Section -->
+        <div class="settings-section">
+            <h3>Message Settings</h3>
+            <div class="form-group">
+                <label for="defaultMessage">Default SMS Message</label>
+                <textarea id="defaultMessage" formControlName="defaultMessage"
+                    placeholder="Enter Default SMS Message"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="whatsappMessage">Default WhatsApp Message</label>
+                <textarea id="whatsappMessage" formControlName="whatsappMessage"
+                    placeholder="Enter Default WhatsApp Message"></textarea>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" [disabled]="!twilioSettingsForm.valid">Save All Settings</button>
+    </form>
+</div>
+<hr>
+<!-- src/app/components/settings/settings.component.html -->
+<div class="container mt-5">
+    <h2>Stripe Settings</h2>
+    <form [formGroup]="stripeSettingsForm" (ngSubmit)="defaultStripeSettings()">
+
+        <!-- Stripe Secret Key -->
+        <div class="form-group">
+            <label for="stripeSecretKey">Stripe Secret Key</label>
+            <input type="text" id="stripeSecretKey" formControlName="stripeSecretKey" class="form-control"
+                placeholder="Enter Stripe Secret Key" />
+            <div *ngIf="stripeSettingsForm.get('stripeSecretKey').invalid && stripeSettingsForm.get('stripeSecretKey').touched"
+                class="text-danger">
+                Stripe Secret Key is required.
+            </div>
+        </div>
+
+        <!-- Default Currency -->
+        <div class="form-group mt-3">
+            <label for="defaultCurrency">Default Currency</label>
+            <select id="defaultCurrency" formControlName="defaultCurrency" class="form-control">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="INR">INR</option>
+                <option value="CAD">CAD</option>
+            </select>
+        </div>
+
+        <!-- Driver Payout Frequency -->
+        <div class="form-group mt-3">
+            <label for="driverPayoutFrequency">Driver Payout Frequency</label>
+            <select id="driverPayoutFrequency" formControlName="driverPayoutFrequency" class="form-control">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+
+        <!-- Stripe Mode (Live or Test) -->
+        <div class="form-group mt-3">
+            <label for="stripeMode">Stripe Mode</label>
+            <select id="stripeMode" formControlName="stripeMode" class="form-control">
+                <option value="Live">Live</option>
+                <option value="Test">Test</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-4" [disabled]="stripeSettingsForm.invalid">Save
+            Settings</button>
+    </form>
+</div>

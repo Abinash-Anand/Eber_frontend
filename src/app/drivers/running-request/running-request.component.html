@@ -1,0 +1,236 @@
+<div class="alert alert-success m-2" role="alert" *ngIf="rideCompleteStatus">
+    <strong>Your Ride Has been Completed!🎉 </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Accepted'">
+    <strong>Your Ride Has been Accepted </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Arrived'">
+    <strong>Your Ride Has been Arrived </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Picked'">
+    <strong>Customer Have been Picked From the Set Location </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Started'">
+    <strong>Your Ride Has Started! </strong>
+</div>
+
+<img width="100" *ngIf="nodemail" class="email" height="100" src="https://img.icons8.com/papercut/60/new-post.png" alt="new-post" />
+
+
+
+
+    <h2 class="m-3">Running Requests</h2>
+    <hr class="ruler">
+    <div *ngIf="emptyBookingError" class="alert alert-danger">
+        No assigned requests found!
+    </div>
+    <table class="table table-bordered" *ngIf="assignedRequests.length > 0">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>User Name</th>
+                <th>Pick Up Location</th>
+                <th>Drop Off Location</th>
+                <th>Service Type</th>
+                <th>Assigned Driver</th>
+                <th>Actions</th>
+                <th>Request Timer</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let request of assignedRequests; let i = index" (click)="selectRequest(request)">
+                <td>{{ request._id }}</td>
+                <td>{{ request.userId?.username }}</td>
+                <td>{{ request.pickupLocation }}</td>
+                <td>{{ request.dropOffLocation }}</td>
+                <td>{{ request.serviceType }}</td>
+                <td>{{request.driverObjectId.username}}</td>
+            <td *ngIf="request.status === 'Assigned'; else rideProgress">
+                <button class="btn btn-outline-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
+                <button class="btn btn-outline-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
+            </td>
+            <ng-template #rideProgress>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Ride Status
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Arrived')">Arrived</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Picked')">Picked</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Started')">Started</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Completed')">Completed</a>
+                        </div>
+                    </div>
+                </td>
+            </ng-template>
+            <!-- working on it *ngIf="booking_id === request._id" -->
+            <td class="countdown-timer p-3" >{{ countdownTimers[request._id] || 'No Timer' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <div class="cronJOBDRiver" *ngIf="cronDataBooking">
+        <h3>CRON DRIVER</h3>
+        <hr>
+        <p><strong>Request ID:</strong> {{ cronDataBooking.driverObjectId._id }}</p>
+        <p><strong>BOOKING ID:</strong> {{ cronDataBooking._id }}</p>
+        <p><strong>DRIVER:</strong> {{ cronDataBooking.driverObjectId.userProfile }}</p>
+        <p><strong>Status:</strong> {{ cronDataBooking.status }}</p>
+        <p><strong>Phone:</strong> {{ cronDataBooking.driverObjectId.phone }}</p>
+    </div>
+
+    <div class="booking-request p-4" *ngIf="selectedRequest && !showInvoice" >
+        <h3>Request Details</h3>
+        <hr>
+        <p><strong>Request ID:</strong> {{ selectedRequest._id }}</p>
+        <p><strong>User Name:</strong> {{ selectedRequest.userId?.username }}</p>
+        <p><strong>Phone:</strong> {{ selectedRequest.userId?.phone }}</p>
+        <p><strong>Pick Up Location:</strong> {{ selectedRequest.pickupLocation }}</p>
+        <p><strong>Drop Off Location:</strong> {{ selectedRequest.dropOffLocation }}</p>
+        <p><strong>Service Type:</strong> {{ selectedRequest.serviceType }}</p>
+        <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+           
+    </div>
+   
+    <hr>
+<div class="container my-5" *ngIf="showInvoice">
+    <!-- Invoice Header -->
+    <div class="card shadow-lg rounded invoice-card">
+        <div class="animated-bg"></div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-gradient">Thank You for Riding, {{ invoiceObject.bookingId.username }}!</h2>
+                <p class="text-muted">We hope you enjoyed your ride this evening.</p>
+                <img width="94" height="94" src="https://img.icons8.com/3d-fluency/94/taxi.png" alt="Taxi"
+                    class="img-fluid" />
+            </div>
+            <hr>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <p class="text-muted mb-0">Date: {{ invoiceObject.createdAt | date: 'shortDate' }}</p>
+                </div>
+                <div class="text-end">
+                    <h3 class="fw-bold text-success animated-amount">${{ invoiceObject.totalFare }}</h3>
+                    <p class="text-muted mb-0">Total</p>
+                </div>
+            </div>
+
+            <!-- Trip Details Section -->
+            <h5 class="mt-4 text-gradient">Trip Details</h5>
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <span>Trip Fare</span>
+                    <span>${{ invoiceObject.tripFare }}</span>
+                </li>
+                <li class="list-group-item">
+                    <span>Platform Charges</span>
+                    <span>${{ invoiceObject.platformCharge }}</span>
+                </li>
+            </ul>
+
+            <!-- Payment Method Section -->
+            <div class="mb-4">
+                <h5 class="text-gradient">Payment Method</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Amount Charged</span>
+                    <span>${{ invoiceObject.totalFare }}</span>
+                </div>
+                <div class="d-flex align-items-center mt-2"
+                    *ngIf="invoiceObject.paymentOption !== 'cash' else cashPayment">
+                    <img width="60" height="60" src="https://img.icons8.com/3d-fluency/94/stripe.png" alt="Stripe"
+                        class="img-fluid bounce" />
+                    <span class="ms-2">Credit Card</span>
+                </div>
+                <ng-template #cashPayment>
+                    <div class="d-flex align-items-center mt-2">
+                        <img width="60" height="60"
+                            src="https://img.icons8.com/external-nawicon-flat-nawicon/64/external-Cash-ecommerce-nawicon-flat-nawicon.png"
+                            alt="Cash" class="img-fluid bounce" />
+                        <span class="ms-2">Cash</span>
+                    </div>
+                </ng-template>
+            </div>
+
+            <hr>
+
+            <!-- Driver Section -->
+            <div class="row align-items-center ">
+                <div class="col">
+                    <h5 class="mb-0">{{ invoiceObject.driverObjectId.username }}</h5>
+                    <p class="text-muted mb-0">{{ invoiceObject.driverObjectId.rating || '4.97' }} ★ Rating</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">Thank you for choosing us!</p>
+                <p class="text-muted">We look forward to serving you again!</p>
+            </div>
+
+        <!-- Feedback Form Section -->
+    <div class="container my-5" *ngIf="!feedbackSubmited">
+        <div class="card shadow-lg p-4 floating-card animated-card">
+            <div class="mt-5">
+                <h5 class="text-gradient display-6 fw-bold text-center">Rate Your Experience</h5>
+    
+                <!-- Feedback Form -->
+                <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()">
+    
+                    <!-- Rate the Ride -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-3">Rate the Ride</h6>
+                        <div class="d-flex justify-content-center mb-4">
+                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                <i class="star filled"
+                                    [ngClass]="star <= feedbackForm.get('rideRating')?.value ? 'bi-star-fill' : 'bi-star'"
+                                    (click)="setRating('rideRating', star)" style="cursor: pointer;"></i>
+                            </ng-container>
+                        </div>
+                    </div>
+    
+                    <!-- Rate the Driver -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-3">Rate the Driver</h6>
+                        <div class="d-flex justify-content-center mb-4">
+                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                <i class="star filled"
+                                    [ngClass]="star <= feedbackForm.get('driverRating')?.value ? 'bi-star-fill' : 'bi-star'"
+                                    (click)="setRating('driverRating', star)" style="cursor: pointer;"></i>
+                            </ng-container>
+                        </div>
+                    </div>
+    
+                    <!-- Comments for the Driver -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-4">Comments for the Driver</h6>
+                        <div class="row comments m-3">
+                            <div class="col-md-5 " *ngFor="let comment of commentsList">
+                                <div class="p-2 mb-3 bg-light text-dark shadow-sm">
+                                    <input class="form-check-input p-2" type="checkbox" [formControlName]="comment.key"
+                                        id="{{comment.key}}">
+                                    <label class="form-check-label fs-5 text-secondary" for="{{comment.key}}">
+                                        {{ comment.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Submit Button -->
+                    <div class="text-center mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg" [disabled]="!feedbackForm.valid">Submit
+                            Feedback</button>
+                    </div>
+    
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+        </div>
+    </div>
+</div>
